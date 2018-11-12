@@ -16,6 +16,13 @@ def process_csv_data(train_path, test_path):
 
     return train_data, test_data
 
+def withhold_data(training_data, percentage):
+	train_size = int(percentage * len(training_data))
+	train_data = training_data[:train_size]
+	withheld_data = training_data[train_size:]
+
+	return train_data, withheld_data
+
 
 train_data, test_data = process_csv_data('../data/train.csv', '../data/test.csv')
 
