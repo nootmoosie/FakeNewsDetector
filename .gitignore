@@ -1,2 +1,4 @@
 *.pyc
 **/.DS_Store
+.idea/
+code/GoogleNews-vectors-negative300.bin
