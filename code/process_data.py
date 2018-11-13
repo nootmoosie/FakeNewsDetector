@@ -1,52 +1,71 @@
 import os
 import csv
 import numpy as np
+import gensim
 
+def process_csv_data(train_path, test_path, n_train, n_test):
 
-def process_csv_data(train_path, test_path):
+    # Load Google's pre-trained Word2Vec model.
+    # word_embeddings = model = gensim.models.KeyedVectors.load_word2vec_format('./GoogleNews-vectors-negative300.bin', binary=True)
+
     train_data = []
     test_data = []
 
     train_file = open(train_path, 'r', encoding='utf8')
     test_file = open(test_path, 'r', encoding='utf8')
 
-    train_str = train_file.read().splitlines()
-    test_str = test_file.read().splitlines()
+    train_str = train_file.readlines()
+    test_str = test_file.readlines()
 
+    # print(train_str[1])
+    # line = 'value1,"oh look, an embedded comma",value3'
+    # line = train_str[1]
+    # csv_reader = csv.reader([line], quotechar='"', delimiter=',', quoting=csv.QUOTE_ALL, skipinitialspace=True)
+    # fields = None
+    # for row in csv_reader:
+    #     fields = row
+    #     for value in row:
+    #         print("new value: ", value)
+    # print(fields)
 
-    # SASHAS:
-    # for data_point in train_str:
-    #     line = csv.reader([data_point], quotechar='"', delimiter=',', quoting=csv.QUOTE_ALL, skipinitialspace=True)
-    #     entry = list(i for i in line)
-    #     print(entry)
-    #     #print('id: ', entry[0])
-    #     #print('title: ', entry[1])
-    #     #print('author: ', entry[2])
-    #     #print('text: ', entry[3])
-    #     #print('label: ', entry[4])
-    #     #train_data.append(entry)
-
-    # print(type(train_str))
-    # batch = train_str[:3]
-    # print(batch)
-    # NATES:
-
+    n_1 = 0  # TEMP FIX, WANT TO PASS BATCHES INTO READER TO GET ALL DATA.
     for entry in csv.reader(train_str, quotechar='"', delimiter=',', quoting=csv.QUOTE_ALL, skipinitialspace=True):
-        print('id: ', entry[0])
-        print('title: ', entry[1])
-        print('author: ', entry[2])
-        print('text: ', entry[3])
-        print('label: ', entry[4])
-        train_data.append(entry)
+        if n_1 < n_train:
+            # print('id: ', entry[0])
+            # print('title: ', entry[1])
+            # print('author: ', entry[2])
+            # print('text: ', entry[3])
+            # print('label: ', entry[4])
+            train_data.append(entry)
+            n_1 += 1
+        else:
+            break
 
+    n_2 = 0
     for entry in csv.reader(test_str, quotechar='"', delimiter=',', quoting=csv.QUOTE_ALL, skipinitialspace=True):
-        # print('id: ', entry[0])
-        # print('title: ', entry[1])
-        # print('author: ', entry[2])
-        # print('text: ', entry[3])
-        # print('label: ', entry[4])
-        test_data.append(entry)
+        if n_2 < n_test:
+            # print('id: ', entry[0])
+            # print('title: ', entry[1])
+            # print('author: ', entry[2])
+            # print('text: ', entry[3])
+            # print('label: ', entry[4])
+            test_data.append(entry)
+            n_2 += 1
+        else:
+            break
 
+    print(np.array(train_data).shape)
+    print(np.array(test_data).shape)
+    # Data now organized in nested list, now need to embed the words for each article.
+
+    # for data in train_data:
+    #     word_matrix = []
+    #     for word in data[3].split():
+    #         print(word)
+    #         # embedding = word_embeddings[word]
+    #         # word_matrix.append(embedding)
+    #     print("length of article: ", len(data[3]))
+    #     # print("shape of word matrix: ", np.array(word_matrix).shape)
 
     return train_data, test_data
 
@@ -59,7 +78,7 @@ def withhold_data(training_data, percentage):
     return train_data, withheld_data
 
 
-train_data, test_data = process_csv_data('../data/train.csv', '../data/test.csv')
+train_data, test_data = process_csv_data('../data/train.csv', '../data/test.csv', 100, 10)
 
 
 
