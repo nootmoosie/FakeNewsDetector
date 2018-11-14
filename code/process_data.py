@@ -2,6 +2,7 @@ import os
 import csv
 import numpy as np
 import gensim
+import re
 
 def process_csv_data(train_path, test_path, n_train, n_test):
 
@@ -58,17 +59,28 @@ def process_csv_data(train_path, test_path, n_train, n_test):
     print(np.array(test_data).shape)
     # Data now organized in nested list, now need to embed the words for each article.
 
-    for data in train_data:
-        print("Converting article: ", data[2], "...")
+    training = []
+    for data in train_data[1:]:
+        print("Converting article: ", data[1], "...")
+        rmv_pnc = re.sub(r'[^\w\s]', '', data[3])
+        words = rmv_pnc.split()
         word_matrix = []
-        for word in data[3].split():
+        for word in words:
             # print(word)
             if word in word_embeddings:
                 # print(word, " was in the embedding")
                 embedding = word_embeddings[word]
                 word_matrix.append(embedding)
+
+        processed_data = np.array(word_matrix).flatten()
+        training.append(processed_data)
         print("words in article: ", len(data[3].split()))
         print("shape of word matrix: ", np.array(word_matrix).shape)
+
+    for article in training:
+        print(article.shape)
+        if article.shape[0]%300 is not 0:
+            print("bruh its rong")
 
     return train_data, test_data
 
