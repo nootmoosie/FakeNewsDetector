@@ -6,7 +6,7 @@ import gensim
 def process_csv_data(train_path, test_path, n_train, n_test):
 
     # Load Google's pre-trained Word2Vec model.
-    # word_embeddings = model = gensim.models.KeyedVectors.load_word2vec_format('./GoogleNews-vectors-negative300.bin', binary=True)
+    word_embeddings = model = gensim.models.KeyedVectors.load_word2vec_format('./GoogleNews-vectors-negative300.bin', binary=True)
 
     train_data = []
     test_data = []
@@ -58,14 +58,17 @@ def process_csv_data(train_path, test_path, n_train, n_test):
     print(np.array(test_data).shape)
     # Data now organized in nested list, now need to embed the words for each article.
 
-    # for data in train_data:
-    #     word_matrix = []
-    #     for word in data[3].split():
-    #         print(word)
-    #         # embedding = word_embeddings[word]
-    #         # word_matrix.append(embedding)
-    #     print("length of article: ", len(data[3]))
-    #     # print("shape of word matrix: ", np.array(word_matrix).shape)
+    for data in train_data:
+        print("Converting article: ", data[2], "...")
+        word_matrix = []
+        for word in data[3].split():
+            # print(word)
+            if word in word_embeddings:
+                # print(word, " was in the embedding")
+                embedding = word_embeddings[word]
+                word_matrix.append(embedding)
+        print("words in article: ", len(data[3].split()))
+        print("shape of word matrix: ", np.array(word_matrix).shape)
 
     return train_data, test_data
 
@@ -78,7 +81,7 @@ def withhold_data(training_data, percentage):
     return train_data, withheld_data
 
 
-train_data, test_data = process_csv_data('../data/train.csv', '../data/test.csv', 100, 10)
+train_data, test_data = process_csv_data('../data/train.csv', '../data/test.csv', 10, 5)
 
 
 
