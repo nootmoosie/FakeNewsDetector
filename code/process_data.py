@@ -65,6 +65,7 @@ def process_csv_data(train_path, test_path, n_train, n_test):
         rmv_pnc = re.sub(r'[^\w\s]', '', data[3])
         words = rmv_pnc.split()
         word_matrix = []
+        label = data[4]
         for word in words:
             # print(word)
             if word in word_embeddings:
@@ -73,16 +74,35 @@ def process_csv_data(train_path, test_path, n_train, n_test):
                 word_matrix.append(embedding)
 
         processed_data = np.array(word_matrix).flatten()
-        training.append(processed_data)
+        training.append((processed_data, label))
         print("words in article: ", len(data[3].split()))
         print("shape of word matrix: ", np.array(word_matrix).shape)
 
+    # testing size of training data
     for article in training:
-        print(article.shape)
-        if article.shape[0]%300 is not 0:
+        print(article[0].shape, " ", article[1])
+        if article[0].shape[0]%300 is not 0:
             print("bruh its rong")
 
-    return train_data, test_data
+    testing = []
+    for data in test_data[1:]:
+        print("Converting article: ", data[1], "...")
+        rmv_pnc = re.sub(r'[^\w\s]', '', data[3])
+        words = rmv_pnc.split()
+        word_matrix = []
+        for word in words:
+            # print(word)
+            if word in word_embeddings:
+                # print(word, " was in the embedding")
+                embedding = word_embeddings[word]
+                word_matrix.append(embedding)
+
+        processed_data = np.array(word_matrix).flatten()
+        testing.append(processed_data)
+        print("words in article: ", len(data[3].split()))
+        print("shape of word matrix: ", np.array(word_matrix).shape)
+
+    return training, testing
 
 
 def withhold_data(training_data, percentage):
