@@ -21,7 +21,8 @@ def process_train_data(train_path, n_articles, n_words):
         else:
             break
 
-    train_x = []
+    #train_x = []
+    train_x = np.zeros((n_articles-1, n_words*300))
     train_y = np.zeros((n_articles-1, 2))
 
     for i, data in enumerate(train_data[1:]):
@@ -39,12 +40,12 @@ def process_train_data(train_path, n_articles, n_words):
                     word_matrix.extend(embedding)
                     n_2 += 1
         label = data[4]
-        if label == 0:
-            train_y[i, 0] = 1
+        if int(label) == 0:
+            train_y[i] = [1, 0]
         else:
-            train_y[i, 1] = 1
+            train_y[i] = [0, 1]
 
-        train_x.append(word_matrix)
+        train_x[i] = word_matrix
 
         print("words in article: ", len(data[3].split()))
         print("shape of word matrix: ", np.array(word_matrix).shape)
@@ -55,7 +56,7 @@ def process_train_data(train_path, n_articles, n_words):
     #     if article[0].shape[0]%300 is not 0:
     #         print("bruh its rong")
 
-    train_x = np.array(train_x)
+    #train_x = np.array(train_x)
 
     print("x shape: ", train_x.shape)
     print("y shape: ", train_y.shape)
