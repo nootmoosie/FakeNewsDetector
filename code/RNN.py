@@ -5,12 +5,6 @@ import numpy as np
 from tensorflow.contrib import rnn
 from process_data import process_csv_data
 
-
-# train_data, test_data = process_csv_data('../data/train.csv', '../data/test.csv')
-# print(np.array(train_data).shape)
-# print(np.array(test_data).shape)
-# exit()
-
 hm_epochs = 3
 n_classes = 2
 # batch_size = 128

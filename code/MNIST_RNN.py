@@ -48,11 +48,10 @@ def train_neural_network(x):
         for epoch in range(hm_epochs):
             epoch_loss = 0
             for _ in range(int(mnist.train.num_examples / batch_size)):
-                print("Reshaping input into chunks:")
+                # print("Reshaping input into chunks:")
                 epoch_x, epoch_y = mnist.train.next_batch(batch_size)
-                print(type(epoch_y))
-                print(type(epoch_x))
-                print(np.array(epoch_x).shape)
+                # y is np array 128x10 --> 128 labels all in one-hot vectors for 10 classes
+                # x is np array 128x784  --> 128 images in one long string of pxl values
                 epoch_x = epoch_x.reshape((batch_size, n_chunks, chunk_size))
 
                 # grabs next batch of images, 128 of the 1x784 vectors -> 128x784
