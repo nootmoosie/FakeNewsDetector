@@ -54,7 +54,7 @@ def process_train_data(train_path, n_articles, n_words):
     #     print(article[0].shape, " ", article[1])
     #     if article[0].shape[0]%300 is not 0:
     #         print("bruh its rong")
-
+    print(len(train_x), len(train_x[0]))
     train_x = np.array(train_x)
 
     print("x shape: ", train_x.shape)
@@ -167,7 +167,7 @@ def withhold_data(training_data, percentage):
 
 #train_data, test_data = process_csv_data('../data/train.csv', '../data/test.csv', 10, 5)
 
-tx, ty = process_train_data('../data/train.csv', 10, 100)
+# tx, ty = process_train_data('../data/train.csv', 10, 100)
 
 
 
