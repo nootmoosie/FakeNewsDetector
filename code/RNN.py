@@ -10,7 +10,7 @@ n_classes = 2
 # batch_size = 128
 
 chunk_size = 300
-n_chunks = 100
+n_chunks = 1
 rnn_size = 128
 
 x = tf.placeholder('float', [None, n_chunks, chunk_size])
@@ -38,7 +38,7 @@ def train_neural_network(x):
     # train_data, test_data = process_csv_data('../data/train.csv', '../data/test.csv', 10, 5)
     # epoch_x, epoch_y = train_data[0], train_data[1]
 
-    epoch_x, epoch_y = process_train_data('../data/train.csv', 50, 100)
+    epoch_x, epoch_y = process_train_data('../data/train.csv', 50, n_chunks)
     prediction = recurrent_neural_network(x)
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=prediction, labels=y))
     optimizer = tf.train.AdamOptimizer().minimize(cost)
