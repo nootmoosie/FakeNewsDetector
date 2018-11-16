@@ -39,6 +39,11 @@ def process_train_data(train_path, n_articles, n_words):
                     embedding = word_embeddings[word]
                     word_matrix.extend(embedding)
                     n_2 += 1
+
+        if(len(word_matrix) < train_x.shape[1]):
+            padding = np.zeros(train_x.shape[1]-len(word_matrix))
+            word_matrix.extend(padding)
+
         label = data[4]
         if int(label) == 0:
             train_y[i] = [1, 0]
@@ -46,6 +51,8 @@ def process_train_data(train_path, n_articles, n_words):
             train_y[i] = [0, 1]
 
         train_x[i] = word_matrix
+
+        print("len(word_matrix):", len(word_matrix))
 
         print("words in article: ", len(data[3].split()))
         print("shape of word matrix: ", np.array(word_matrix).shape)
@@ -120,6 +127,7 @@ def process_csv_data(train_path, test_path, n_train, n_test):
                 embedding = word_embeddings[word]
                 word_matrix.extend(embedding)
                 w_cnt += 1
+
         training.append(word_matrix)
         # processed_data = np.array(word_matrix).flatten()
         # training.append((processed_data, label))

@@ -16,7 +16,6 @@ rnn_size = 128
 x = tf.placeholder('float', [None, n_chunks, chunk_size])
 y = tf.placeholder('float')
 
-
 def recurrent_neural_network(x):
     layer = {'weights': tf.Variable(tf.random_normal([rnn_size, n_classes])),
              'biases': tf.Variable(tf.random_normal([n_classes]))}
