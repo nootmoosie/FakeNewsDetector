@@ -5,12 +5,12 @@ import numpy as np
 from tensorflow.contrib import rnn
 from process_data import process_train_data
 
-hm_epochs = 50
+hm_epochs = 35
 n_classes = 2
 # batch_size = 128
 
 chunk_size = 300
-n_chunks = 1
+n_chunks = 100
 rnn_size = 128
 
 x = tf.placeholder('float', [None, n_chunks, chunk_size])
@@ -45,7 +45,7 @@ def train_neural_network(x):
     with tf.Session() as sess:
 
         sess.run(tf.global_variables_initializer())
-
+        # predictions = []
         for epoch in range(hm_epochs):
             epoch_loss = 0
             # (epoch_x, epoch_y), _ = process_csv_data('../data/train.csv', '../data/test.csv', 10, 5)
@@ -60,16 +60,27 @@ def train_neural_network(x):
 
             epoch_x = epoch_x.reshape((epoch_x.shape[0], n_chunks, chunk_size))
             pred, _, c = sess.run([prediction, optimizer, cost], feed_dict={x: epoch_x, y: epoch_y})
-            print(pred)
+            # predictions.append(pred)
             epoch_loss += c
 
             print('Epoch', epoch, 'completed out of', hm_epochs, 'loss:', epoch_loss)
 
         correct = tf.equal(tf.argmax(prediction, 1), tf.argmax(y, 1))
+        # num_correct = 0
+        # print(epoch_y.shape)
+        # for i, p in enumerate(pred):
+        #     print("prediction: {}    true value: {}".format(p, epoch_y[i]))
+        #     if np.argmax(p) == np.argmax(epoch_y):
+        #         print("CORRECT BITCH!!!")
+        #         num_correct += 1
+        #
+        # accuracy = num_correct/len(pred)
+        # print("TEST ACCURACY: ", accuracy)
 
-        # accuracy = tf.reduce_mean(tf.cast(correct, 'float'))
-        # print('Accuracy:',
-        #       accuracy.eval({x: mnist.test.images.reshape((-1, n_chunks, chunk_size)), y: mnist.test.labels}))
+        accuracy = tf.reduce_mean(tf.cast(correct, 'float'))
+        print('Accuracy:',
+              # accuracy.eval({x: mnist.test.images.reshape((-1, n_chunks, chunk_size)), y: mnist.test.labels}))
+              accuracy.eval({x: epoch_x.reshape((-1, n_chunks, chunk_size)), y: epoch_y}))
 
 
 train_neural_network(x)
