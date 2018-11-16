@@ -3,9 +3,10 @@ import gensim
 import numpy as np
 
 from tensorflow.contrib import rnn
-from process_data import process_train_data
+from process_data import process_train_data, train_test_split
 
-hm_epochs = 35
+num_articles = 1000
+hm_epochs = 50
 n_classes = 2
 # batch_size = 128
 
@@ -36,8 +37,9 @@ def train_neural_network(x):
 
     # train_data, test_data = process_csv_data('../data/train.csv', '../data/test.csv', 10, 5)
     # epoch_x, epoch_y = train_data[0], train_data[1]
-
-    epoch_x, epoch_y = process_train_data('../data/train.csv', 50, n_chunks)
+    epoch_x, epoch_y = process_train_data('../data/train.csv', num_articles, n_chunks)
+    train, test = train_test_split(epoch_x, epoch_y, .8)
+    epoch_x, epoch_y = train[0], train[1]
     prediction = recurrent_neural_network(x)
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=prediction, labels=y))
     optimizer = tf.train.AdamOptimizer().minimize(cost)
@@ -78,9 +80,14 @@ def train_neural_network(x):
         # print("TEST ACCURACY: ", accuracy)
 
         accuracy = tf.reduce_mean(tf.cast(correct, 'float'))
-        print('Accuracy:',
+        print('Training Accuracy:',
               # accuracy.eval({x: mnist.test.images.reshape((-1, n_chunks, chunk_size)), y: mnist.test.labels}))
               accuracy.eval({x: epoch_x.reshape((-1, n_chunks, chunk_size)), y: epoch_y}))
+
+        test_x, test_y = test[0], test[1]
+        print('Test Accuracy:',
+              # accuracy.eval({x: mnist.test.images.reshape((-1, n_chunks, chunk_size)), y: mnist.test.labels}))
+              accuracy.eval({x: test_x.reshape((-1, n_chunks, chunk_size)), y: test_y}))
 
 
 train_neural_network(x)

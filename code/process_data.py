@@ -24,11 +24,11 @@ def process_train_data(train_path, n_articles, n_words):
     #train_x = []
     train_x = np.zeros((n_articles-1, n_words*300))
     train_y = np.zeros((n_articles-1, 2))
-    print(train_x.shape)
-    print(train_y.shape)
+    # print(train_x.shape)
+    # print(train_y.shape)
 
     for i, data in enumerate(train_data[1:]):
-        print("Converting article: ", data[1], "...")
+        # print("Converting article: ", data[1], "...")
         rmv_pnc = re.sub(r'[^\w\s]', '', data[3])
         words = rmv_pnc.split()
         n_2 = 0
@@ -51,13 +51,13 @@ def process_train_data(train_path, n_articles, n_words):
             train_y[i] = [1, 0]
         else:
             train_y[i] = [0, 1]
-        print(len(word_matrix))
+        # print(len(word_matrix))
         train_x[i] = word_matrix
 
-        print("len(word_matrix):", len(word_matrix))
-
-        print("words in article: ", len(data[3].split()))
-        print("shape of word matrix: ", np.array(word_matrix).shape)
+        # print("len(word_matrix):", len(word_matrix))
+        #
+        # print("words in article: ", len(data[3].split()))
+        # print("shape of word matrix: ", np.array(word_matrix).shape)
 
     # testing size of training data
     # for article in training:
@@ -69,6 +69,28 @@ def process_train_data(train_path, n_articles, n_words):
     print("y shape: ", train_y.shape)
 
     return train_x, train_y
+
+# Returns two tuples (train_x, train_y), (test_x, test_y)
+
+
+# TODO: Implement optional shuffle
+def train_test_split(x, y, percentage, shuffle=False):
+    if shuffle:
+        zipped = zip(x, y)
+        zipped = list(zipped)
+        np.random.shuffle(zipped)
+        x, y = zip(*zipped)
+        print(type(x))
+
+    split_idx = int(percentage*len(x))
+
+    train_x = x[:split_idx]
+    test_x = x[split_idx:]
+
+    train_y = y[:split_idx]
+    test_y = y[split_idx:]
+
+    return (train_x, train_y), (test_x, test_y)
 
 
 def withhold_data(training_data, percentage):
@@ -82,6 +104,11 @@ def withhold_data(training_data, percentage):
 #train_data, test_data = process_csv_data('../data/train.csv', '../data/test.csv', 10, 5)
 
 # tx, ty = process_train_data('../data/train.csv', 10, 100)
+
+# x, y = process_train_data('../data/train.csv', 50, 100)
+
+# train, test = train_test_split(x, y, 0.6)
+
 
 
 
