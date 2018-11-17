@@ -1,9 +1,10 @@
 import tensorflow as tf
 import gensim
 import numpy as np
+import re
 
 from tensorflow.contrib import rnn
-from process_data import process_train_data, train_test_split
+from process_data import process_train_data, train_test_split, get_original_test_data
 
 num_articles = 1000
 hm_epochs = 50
@@ -66,8 +67,10 @@ def train_neural_network(x):
             epoch_loss += c
 
             print('Epoch', epoch, 'completed out of', hm_epochs, 'loss:', epoch_loss)
-
+        
         correct = tf.equal(tf.argmax(prediction, 1), tf.argmax(y, 1))
+        print('correct!!!!; ', correct.eval({x: epoch_x.reshape((-1, n_chunks, chunk_size)), y: epoch_y}))
+
         # num_correct = 0
         # print(epoch_y.shape)
         # for i, p in enumerate(pred):
@@ -88,6 +91,15 @@ def train_neural_network(x):
         print('Test Accuracy:',
               # accuracy.eval({x: mnist.test.images.reshape((-1, n_chunks, chunk_size)), y: mnist.test.labels}))
               accuracy.eval({x: test_x.reshape((-1, n_chunks, chunk_size)), y: test_y}))
+
+        incorrect_indeces = tf.where(tf.logical_not(correct.eval({x: test_x.reshape((-1, n_chunks, chunk_size)), y: test_y})))
+        print(incorrect_indeces.eval({x: test_x.reshape((-1, n_chunks, chunk_size)), y: test_y}))
+
+        for i in incorrect_indeces.eval({x: test_x.reshape((-1, n_chunks, chunk_size)), y: test_y}):
+            index = i[0]
+            data = get_original_test_data('../data/train.csv', .8, num_articles)
+            print("index: ", index, "article: ", data[index], "article length: ", len(re.sub(r'[^\w\s]', '', data[index][3]).split()))
+
 
 
 train_neural_network(x)
