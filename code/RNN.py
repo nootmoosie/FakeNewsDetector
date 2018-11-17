@@ -1,6 +1,7 @@
 import tensorflow as tf
 import gensim
 import numpy as np
+import matplotlib.pyplot as plt
 
 from tensorflow.contrib import rnn
 from process_data import process_train_data, train_test_split
@@ -33,16 +34,19 @@ def recurrent_neural_network(x):
     return output
 
 
-def train_neural_network(x):
+def train_neural_network(x, graph=False):
 
     # train_data, test_data = process_csv_data('../data/train.csv', '../data/test.csv', 10, 5)
     # epoch_x, epoch_y = train_data[0], train_data[1]
     epoch_x, epoch_y = process_train_data('../data/train.csv', num_articles, n_chunks)
-    train, test = train_test_split(epoch_x, epoch_y, .8)
+    train, test = train_test_split(epoch_x, epoch_y, .7)
     epoch_x, epoch_y = train[0], train[1]
     prediction = recurrent_neural_network(x)
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=prediction, labels=y))
     optimizer = tf.train.AdamOptimizer().minimize(cost)
+
+    train_accuracies = []
+    test_accuracies = []
 
     with tf.Session() as sess:
 
@@ -67,6 +71,21 @@ def train_neural_network(x):
 
             print('Epoch', epoch, 'completed out of', hm_epochs, 'loss:', epoch_loss)
 
+
+            correct = tf.equal(tf.argmax(prediction, 1), tf.argmax(y, 1))
+
+            accuracy = tf.reduce_mean(tf.cast(correct, 'float'))
+
+            train_acc = accuracy.eval({x: epoch_x.reshape((-1, n_chunks, chunk_size)), y: epoch_y})
+            print('Training Accuracy:', train_acc)
+
+            test_x, test_y = test[0], test[1]
+            test_acc = accuracy.eval({x: test_x.reshape((-1, n_chunks, chunk_size)), y: test_y})
+            print('Test Accuracy:', test_acc)
+
+            train_accuracies.append(train_acc)
+            test_accuracies.append(test_acc)
+
         correct = tf.equal(tf.argmax(prediction, 1), tf.argmax(y, 1))
         # num_correct = 0
         # print(epoch_y.shape)
@@ -89,5 +108,16 @@ def train_neural_network(x):
               # accuracy.eval({x: mnist.test.images.reshape((-1, n_chunks, chunk_size)), y: mnist.test.labels}))
               accuracy.eval({x: test_x.reshape((-1, n_chunks, chunk_size)), y: test_y}))
 
+    if(graph):
+        plt.plot(range(hm_epochs), train_accuracies, 'b-', label='Train')
+        plt.plot(range(hm_epochs), test_accuracies, 'r-', label='Test')
+        plt.title("Training and test accuracy over epochs")
+        plt.xlabel("Epoch")
+        plt.ylabel("Accuracy")
+        plt.legend()
+        plt.show()
 
-train_neural_network(x)
+
+
+
+train_neural_network(x, graph=True)
