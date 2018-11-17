@@ -81,13 +81,15 @@ def train_neural_network(x):
 
         accuracy = tf.reduce_mean(tf.cast(correct, 'float'))
         print('Training Accuracy:',
-              # accuracy.eval({x: mnist.test.images.reshape((-1, n_chunks, chunk_size)), y: mnist.test.labels}))
               accuracy.eval({x: epoch_x.reshape((-1, n_chunks, chunk_size)), y: epoch_y}))
+        print('Training Correct Article Indices: ',
+              correct.eval({x: epoch_x.reshape((-1, n_chunks, chunk_size)), y: epoch_y}))
 
         test_x, test_y = test[0], test[1]
         print('Test Accuracy:',
-              # accuracy.eval({x: mnist.test.images.reshape((-1, n_chunks, chunk_size)), y: mnist.test.labels}))
               accuracy.eval({x: test_x.reshape((-1, n_chunks, chunk_size)), y: test_y}))
+        print('Test Correct Article Indices: ',
+              correct.eval({x: test_x.reshape((-1, n_chunks, chunk_size)), y: test_y}))
 
 
 train_neural_network(x)
