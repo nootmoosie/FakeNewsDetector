@@ -73,6 +73,43 @@ def process_train_data(train_path, n_articles, n_words):
 # Returns two tuples (train_x, train_y), (test_x, test_y)
 
 
+#---------------------------------
+
+def get_original_test_data(path, percentage, n_articles):
+
+    split_idx = int(percentage*n_articles-1)
+ 
+    test_data = []
+ 
+    file = open(path, 'r', encoding='utf8')
+ 
+    string = file.readlines()
+ 
+    n_1 = 0  # TEMP FIX, WANT TO PASS BATCHES INTO READER TO GET ALL DATA.
+    for entry in csv.reader(string, quotechar='"', delimiter=',', quoting=csv.QUOTE_ALL, skipinitialspace=True):
+        if n_1 < n_articles:
+            if n_1 < split_idx:
+                # print('id: ', entry[0])
+                # print('title: ', entry[1])
+                # print('author: ', entry[2])
+                # print('text: ', entry[3])
+                # print('label: ', entry[4])
+                n_1 += 1
+            else:
+                test_data.append(entry)
+                n_1 += 1
+        else:
+            break
+
+    test_data.pop(0)
+    print(np.array(test_data).shape)
+     # Data now organized in nested list, now need to embed the words for each article.
+ 
+    return test_data
+
+
+#---------------------------------
+
 # TODO: Implement optional shuffle
 def train_test_split(x, y, percentage, shuffle=False):
     if shuffle:
@@ -108,6 +145,9 @@ def withhold_data(training_data, percentage):
 # x, y = process_train_data('../data/train.csv', 50, 100)
 
 # train, test = train_test_split(x, y, 0.6)
+
+#test_data = get_original_test_data('../data/train.csv', .8, 1000)
+#print(test_data)
 
 
 
