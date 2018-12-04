@@ -6,21 +6,33 @@ import re
 import statistics
 from matplotlib import pyplot
 
-def get_stats(train_path, n_articles=5000, extra_plot=None):
+def get_stats(train_path, attribute='articles', n_rows=5000, extra_plot=None, chars=False):
     ''' method to process the data and
     calculate all of the useful
     statistics '''
 
+    spot = None
+    if attribute == 'articles':
+        spot = 3
+    elif attribute == 'authors':
+        spot = 2
+    elif attribute == 'titles':
+        spot = 1
+
     # read in all of the training data
-    train_data = read_train_data(train_path, n_articles)
+    train_data = read_train_data(train_path, n_rows, attribute)
 
     # get the lengths of the articles, in words
-    lengths = [len(row[3].split()) for row in train_data]
+    if not chars:
+        lengths = [len(row[spot].split()) for row in train_data]
+
+    if chars:
+        lengths = [len(row[spot]) for row in train_data]
 
 
     # calculate and print all of the statistics for the article lengths
-    print("Statistics of Article Lengths")
-    print("Number of Articles: ", n_articles)
+    print("Statistics of ", attribute, " Lengths")
+    print("Number of ", attribute, ": ", n_rows)
     print("Mean: ", statistics.mean(lengths))
     print("Median: ", statistics.median(lengths))
     print("Mode: ", statistics.mode(lengths))
@@ -28,7 +40,7 @@ def get_stats(train_path, n_articles=5000, extra_plot=None):
     print("Maximum: ", max(lengths))
     print("Standard Deviation: ", statistics.stdev(lengths))
 
-    ids = [i for i in range(n_articles)]
+    ids = [i for i in range(n_rows)]
 
     lengths.sort()
 
@@ -38,7 +50,7 @@ def get_stats(train_path, n_articles=5000, extra_plot=None):
     pyplot.bar(ids, lengths)
     pyplot.show()
 
-    idx = int(n_articles/2)
+    idx = int(n_rows/2)
 
     pyplot.bar(ids[:idx], lengths[:idx])
     pyplot.show()
@@ -52,10 +64,18 @@ def get_stats(train_path, n_articles=5000, extra_plot=None):
 
 
 
-def read_train_data(train_path, n_articles):
+def read_train_data(train_path, n_rows, attribute='articles'):
     ''' method to read in the training data
     and shape it into the correct dimensions
     for processing it and collecting stats '''
+
+    spot = None
+    if attribute == 'articles':
+        spot = 3
+    elif attribute == 'authors':
+        spot = 2
+    elif attribute == 'titles':
+        spot = 1
 
     train_data = []
     train_file = open(train_path, 'r', encoding='utf8')
@@ -63,9 +83,9 @@ def read_train_data(train_path, n_articles):
 
     n_1 = 0
     for entry in csv.reader(train_str, quotechar='"', delimiter=',', quoting=csv.QUOTE_ALL, skipinitialspace=True):
-        if n_1 < n_articles:
+        if n_1 < n_rows:
             train_data.append(entry)
-            train_data[n_1][3] = re.sub(r'[^\w\s]', '', train_data[n_1][3])
+            train_data[n_1][spot] = re.sub(r'[^\w\s]', '', train_data[n_1][spot])
             n_1 += 1
         else:
             break
