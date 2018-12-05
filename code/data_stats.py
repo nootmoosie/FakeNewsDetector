@@ -29,6 +29,9 @@ def get_stats(train_path, attribute='articles', n_rows=5000, extra_plot=None, ch
     if chars:
         lengths = [len(row[spot]) for row in train_data]
 
+    if n_rows == 'all':
+        n_rows = len(train_data)
+
 
     # calculate and print all of the statistics for the article lengths
     print("Statistics of ", attribute, " Lengths")
@@ -97,6 +100,10 @@ def read_train_data(train_path, n_rows, attribute='articles'):
     train_str = train_file.readlines()
 
     csv.field_size_limit(100000000)
+
+    if n_rows == 'all':
+        n_rows = len(train_str)
+
 
     n_1 = 0
     for entry in csv.reader(train_str, quotechar='"', delimiter=',', quoting=csv.QUOTE_ALL, skipinitialspace=True):
