@@ -51,11 +51,16 @@ def get_stats(train_path, attribute='articles', n_rows=5000, extra_plot=None, ch
     lengths.sort()
 
     title = 'Lengths of ' + attribute
-    label = 'length of ' + attribute
+    xlabel = attribute
+    ylabel = 'number of '
+    if chars:
+        ylabel = ylabel + 'chars'
+    else:
+        ylabel = ylabel + 'words'
 
     pyplot.title(title)
-    pyplot.xlabel(label)
-    pyplot.ylabel('frequency')
+    pyplot.xlabel(xlabel)
+    pyplot.ylabel(ylabel)
     pyplot.bar(ids, lengths)
     pyplot.show()
 
@@ -63,23 +68,23 @@ def get_stats(train_path, attribute='articles', n_rows=5000, extra_plot=None, ch
 
     title2 = title + ' (smaller half)'
     pyplot.title(title2)
-    pyplot.xlabel(label)
-    pyplot.ylabel('frequency')
+    pyplot.xlabel(xlabel)
+    pyplot.ylabel(ylabel)
     pyplot.bar(ids[:idx], lengths[:idx])
     pyplot.show()
 
     title3 = title + ' (larger half)'
     pyplot.title(title3)
-    pyplot.xlabel(label)
-    pyplot.ylabel('frequency')
+    pyplot.xlabel(xlabel)
+    pyplot.ylabel(ylabel)
     pyplot.bar(ids[idx:], lengths[idx:])
     pyplot.show()
 
     if extra_plot is not None:
         title4 = title + ' (up until index ' + extra_plot + ')'
         pyplot.title(title4)
-        pyplot.xlabel(label)
-        pyplot.ylabel('frequency')
+        pyplot.xlabel(xlabel)
+        pyplot.ylabel(ylabel)
         pyplot.bar(ids[:extra_plot], lengths[:extra_plot])
         pyplot.show()
 
