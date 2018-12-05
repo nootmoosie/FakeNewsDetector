@@ -6,14 +6,14 @@ import re
 from tensorflow.contrib import rnn
 from process_data import process_train_data, train_test_split, get_original_test_data
 
-num_articles = 1000
-hm_epochs = 50
+num_articles = 20800
+hm_epochs = 30
 n_classes = 2
 # batch_size = 128
 
 chunk_size = 300
-n_chunks = 100
-rnn_size = 128
+n_chunks = 50
+rnn_size = 256
 
 x = tf.placeholder('float', [None, n_chunks, chunk_size])
 y = tf.placeholder('float')
@@ -85,22 +85,22 @@ def train_neural_network(x):
         accuracy = tf.reduce_mean(tf.cast(correct, 'float'))
         print('Training Accuracy:',
               accuracy.eval({x: epoch_x.reshape((-1, n_chunks, chunk_size)), y: epoch_y}))
-        print('Training Correct Article Indices: ',
-              correct.eval({x: epoch_x.reshape((-1, n_chunks, chunk_size)), y: epoch_y}))
+        # print('Training Correct Article Indices: ',
+        #       correct.eval({x: epoch_x.reshape((-1, n_chunks, chunk_size)), y: epoch_y}))
 
         test_x, test_y = test[0], test[1]
         print('Test Accuracy:',
               accuracy.eval({x: test_x.reshape((-1, n_chunks, chunk_size)), y: test_y}))
-        print('Test Correct Article Indices: ',
-              correct.eval({x: test_x.reshape((-1, n_chunks, chunk_size)), y: test_y}))
+        # print('Test Correct Article Indices: ',
+        #       correct.eval({x: test_x.reshape((-1, n_chunks, chunk_size)), y: test_y}))
 
-        incorrect_indeces = tf.where(tf.logical_not(correct.eval({x: test_x.reshape((-1, n_chunks, chunk_size)), y: test_y})))
-        print(incorrect_indeces.eval({x: test_x.reshape((-1, n_chunks, chunk_size)), y: test_y}))
-
-        for i in incorrect_indeces.eval({x: test_x.reshape((-1, n_chunks, chunk_size)), y: test_y}):
-            index = i[0]
-            data = get_original_test_data('../data/train.csv', .8, num_articles)
-            print("index: ", index, "article: ", data[index], "article length: ", len(re.sub(r'[^\w\s]', '', data[index][3]).split()))
+        # incorrect_indeces = tf.where(tf.logical_not(correct.eval({x: test_x.reshape((-1, n_chunks, chunk_size)), y: test_y})))
+        # print(incorrect_indeces.eval({x: test_x.reshape((-1, n_chunks, chunk_size)), y: test_y}))
+        #
+        # for i in incorrect_indeces.eval({x: test_x.reshape((-1, n_chunks, chunk_size)), y: test_y}):
+        #     index = i[0]
+        #     data = get_original_test_data('../data/train.csv', .8, num_articles)
+        #     print("index: ", index, "article: ", data[index], "article length: ", len(re.sub(r'[^\w\s]', '', data[index][3]).split()))
 
 
 
