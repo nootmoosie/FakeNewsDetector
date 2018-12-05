@@ -96,6 +96,8 @@ def read_train_data(train_path, n_rows, attribute='articles'):
     train_file = open(train_path, 'r', encoding='utf8')
     train_str = train_file.readlines()
 
+    csv.field_size_limit(100000000)
+
     n_1 = 0
     for entry in csv.reader(train_str, quotechar='"', delimiter=',', quoting=csv.QUOTE_ALL, skipinitialspace=True):
         if n_1 < n_rows:
