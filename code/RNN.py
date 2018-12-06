@@ -5,9 +5,10 @@ import re
 
 from tensorflow.contrib import rnn
 from process_data import process_train_data, train_test_split, get_original_test_data
+from make_plot import plot_acc
 
 num_articles = 20800
-hm_epochs = 30
+hm_epochs = 100
 n_classes = 2
 # batch_size = 128
 
@@ -48,26 +49,29 @@ def train_neural_network(x):
     with tf.Session() as sess:
 
         sess.run(tf.global_variables_initializer())
-        # predictions = []
+        train_accuracies = []
+        test_accuracies = []
+
         for epoch in range(hm_epochs):
+
             epoch_loss = 0
-            # (epoch_x, epoch_y), _ = process_csv_data('../data/train.csv', '../data/test.csv', 10, 5)
-
-            # for _ in range(int(mnist.train.num_examples / batch_size)):
-            #     # print("Reshaping input into chunks:")
-            #     epoch_x, epoch_y = mnist.train.next_batch(batch_size)
-            #     # print(tf.shape(epoch_x))
-            #     epoch_x = epoch_x.reshape((batch_size, n_chunks, chunk_size))
-            #     # print(tf.shape(epoch_x))
-            #     # print("DONE.")
-
             epoch_x = epoch_x.reshape((epoch_x.shape[0], n_chunks, chunk_size))
             pred, _, c = sess.run([prediction, optimizer, cost], feed_dict={x: epoch_x, y: epoch_y})
             # predictions.append(pred)
             epoch_loss += c
 
             print('Epoch', epoch, 'completed out of', hm_epochs, 'loss:', epoch_loss)
-        
+
+            ##### FOR PLOTTING ACCURACIES AT EACH EPOCH #####
+            correct = tf.equal(tf.argmax(prediction, 1), tf.argmax(y, 1))
+            accuracy = tf.reduce_mean(tf.cast(correct, 'float'))
+            train_accuracies.append(accuracy.eval({x: epoch_x.reshape((-1, n_chunks, chunk_size)), y: epoch_y}))
+            test_x, test_y = test[0], test[1]
+            test_accuracies.append(accuracy.eval({x: test_x.reshape((-1, n_chunks, chunk_size)), y: test_y}))
+
+        plot_acc(train_accuracies, test_accuracies, hm_epochs, rnn_size, n_chunks)
+        ##### FOR PLOTTING ACCURACIES AT EACH EPOCH #####
+
         correct = tf.equal(tf.argmax(prediction, 1), tf.argmax(y, 1))
         print('correct!!!!; ', correct.eval({x: epoch_x.reshape((-1, n_chunks, chunk_size)), y: epoch_y}))
 
@@ -76,7 +80,6 @@ def train_neural_network(x):
         # for i, p in enumerate(pred):
         #     print("prediction: {}    true value: {}".format(p, epoch_y[i]))
         #     if np.argmax(p) == np.argmax(epoch_y):
-        #         print("CORRECT BITCH!!!")
         #         num_correct += 1
         #
         # accuracy = num_correct/len(pred)
