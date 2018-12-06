@@ -4,7 +4,7 @@ import numpy as np
 import gensim
 import re
 
-def process_train_data(train_path, n_articles, n_words):
+def process_train_data(train_path, n_articles, n_words, max_words=2000, min_words=50):
     ''' method to read in the training data
     and shape it into the correct dimensions '''
     word_embeddings = gensim.models.KeyedVectors.load_word2vec_format('./GoogleNews-vectors-negative300.bin', binary=True)
@@ -28,32 +28,37 @@ def process_train_data(train_path, n_articles, n_words):
     # print(train_x.shape)
     # print(train_y.shape)
 
+    removed = 0
+
     for i, data in enumerate(train_data[1:]):
         # print("Converting article: ", data[1], "...")
         rmv_pnc = re.sub(r'[^\w\s]', '', data[3])
         words = rmv_pnc.split()
-        n_2 = 0
-        word_matrix = []
-        for word in words:
-            # print(word)
-            if n_2 < n_words:
-                if word in word_embeddings:
-                    # print(word, " was in the embedding")
-                    embedding = word_embeddings[word]
-                    word_matrix.extend(embedding)
-                    n_2 += 1
+        if len(words) > min_words and len(words) < max_words:
+            n_2 = 0
+            word_matrix = []
+            for word in words:
+                # print(word)
+                if n_2 < n_words:
+                    if word in word_embeddings:
+                        # print(word, " was in the embedding")
+                        embedding = word_embeddings[word]
+                        word_matrix.extend(embedding)
+                        n_2 += 1
 
-        if(len(word_matrix) < train_x.shape[1]):
-            padding = np.zeros(train_x.shape[1]-len(word_matrix))
-            word_matrix.extend(padding)
+            if(len(word_matrix) < train_x.shape[1]):
+                padding = np.zeros(train_x.shape[1]-len(word_matrix))
+                word_matrix.extend(padding)
 
-        label = data[4]
-        if int(label) == 0:
-            train_y[i] = [1, 0]
+            label = data[4]
+            if int(label) == 0:
+                train_y[i] = [1, 0]
+            else:
+                train_y[i] = [0, 1]
+            # print(len(word_matrix))
+            train_x[i] = word_matrix
         else:
-            train_y[i] = [0, 1]
-        # print(len(word_matrix))
-        train_x[i] = word_matrix
+            removed += 1
 
         # print("len(word_matrix):", len(word_matrix))
         #
@@ -66,10 +71,12 @@ def process_train_data(train_path, n_articles, n_words):
     #     if article[0].shape[0]%300 is not 0:
     #         print("bruh its rong")
 
-    print("x shape: ", train_x.shape)
-    print("y shape: ", train_y.shape)
+    print("x shape: ", train_x.shape-removed)
+    print("y shape: ", train_y.shape-removed)
 
-    return train_x, train_y
+    print("Articles removed because of length: ", removed)
+
+    return train_x[-removed:], train_y[-removed:]
 
 # Returns two tuples (train_x, train_y), (test_x, test_y)
 

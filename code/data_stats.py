@@ -6,7 +6,7 @@ import re
 import statistics
 from matplotlib import pyplot
 
-def get_stats(train_path, attribute='articles', n_rows=5000, extra_plot=None, chars=False):
+def get_stats(train_path, attribute='articles', n_rows=5000, extra_plot=None, chars=False, max_words=2000, min_words=50):
     ''' method to process the data and
     calculate all of the useful
     statistics '''
@@ -25,6 +25,7 @@ def get_stats(train_path, attribute='articles', n_rows=5000, extra_plot=None, ch
     # get the lengths of the articles, in words
     if not chars:
         lengths = [len(row[spot].split()) for row in train_data]
+        lengths = [i for i in lengths if i > min_words and i < max_words]
 
     if chars:
         lengths = [len(row[spot]) for row in train_data]
