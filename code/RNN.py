@@ -8,12 +8,12 @@ from process_data import process_train_data, train_test_split, get_original_test
 from make_plot import plot_acc
 
 num_articles = 20800
-hm_epochs = 30
+hm_epochs = 1
 n_classes = 2
 # batch_size = 128
 
 chunk_size = 300
-n_chunks = 100
+n_chunks = 50
 rnn_size = 256
 l_rate = .00005
 
