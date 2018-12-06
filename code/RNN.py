@@ -69,9 +69,8 @@ def train_neural_network(x):
             train_accuracies.append(accuracy.eval({x: epoch_x.reshape((-1, n_chunks, chunk_size)), y: epoch_y}))
             test_x, test_y = test[0], test[1]
             test_accuracies.append(accuracy.eval({x: test_x.reshape((-1, n_chunks, chunk_size)), y: test_y}))
+            #################################################
 
-        plot_acc(train_accuracies, test_accuracies, hm_epochs, rnn_size, n_chunks)
-        ##### FOR PLOTTING ACCURACIES AT EACH EPOCH #####
 
         correct = tf.equal(tf.argmax(prediction, 1), tf.argmax(y, 1))
         print('correct!!!!; ', correct.eval({x: epoch_x.reshape((-1, n_chunks, chunk_size)), y: epoch_y}))
@@ -87,14 +86,19 @@ def train_neural_network(x):
         # print("TEST ACCURACY: ", accuracy)
 
         accuracy = tf.reduce_mean(tf.cast(correct, 'float'))
-        print('Training Accuracy:',
-              accuracy.eval({x: epoch_x.reshape((-1, n_chunks, chunk_size)), y: epoch_y}))
+        train_acc = accuracy.eval({x: epoch_x.reshape((-1, n_chunks, chunk_size)), y: epoch_y})
+        print('Training Accuracy:', train_acc)
         # print('Training Correct Article Indices: ',
         #       correct.eval({x: epoch_x.reshape((-1, n_chunks, chunk_size)), y: epoch_y}))
 
         test_x, test_y = test[0], test[1]
-        print('Test Accuracy:',
-              accuracy.eval({x: test_x.reshape((-1, n_chunks, chunk_size)), y: test_y}))
+        eval_acc = accuracy.eval({x: test_x.reshape((-1, n_chunks, chunk_size)), y: test_y})
+        print('Test Accuracy:', eval_acc)
+
+        ##### FOR PLOTTING ACCURACIES AT EACH EPOCH #####
+        plot_acc(train_accuracies, test_accuracies, hm_epochs, rnn_size, n_chunks, train_acc, eval_acc)
+        #################################################
+
         # print('Test Correct Article Indices: ',
         #       correct.eval({x: test_x.reshape((-1, n_chunks, chunk_size)), y: test_y}))
 
