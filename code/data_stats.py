@@ -30,8 +30,7 @@ def get_stats(train_path, attribute='articles', n_rows=5000, extra_plot=None, ch
     if chars:
         lengths = [len(row[spot]) for row in train_data]
 
-    if n_rows == 'all':
-        n_rows = len(train_data)
+    n_rows = len(lengths)
 
 
     # calculate and print all of the statistics for the article lengths
@@ -47,7 +46,7 @@ def get_stats(train_path, attribute='articles', n_rows=5000, extra_plot=None, ch
     print("Maximum: ", max(lengths))
     print("Standard Deviation: ", statistics.stdev(lengths))
 
-    ids = [i for i in range(n_rows)]
+    ids = [i for i in range(len(lengths))]
 
     lengths.sort()
 
