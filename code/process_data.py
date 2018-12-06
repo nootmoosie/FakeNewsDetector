@@ -70,7 +70,8 @@ def process_train_data(train_path, n_articles, n_words, max_words=2000, min_word
     #     print(article[0].shape, " ", article[1])
     #     if article[0].shape[0]%300 is not 0:
     #         print("bruh its rong")
-    train_x, train_y = train_x[-removed:], train_y[-removed:]
+
+    # train_x, train_y = train_x[-removed:], train_y[-removed:]
     print("x shape: ", train_x.shape)
     print("y shape: ", train_y.shape)
 

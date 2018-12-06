@@ -8,13 +8,14 @@ from process_data import process_train_data, train_test_split, get_original_test
 from make_plot import plot_acc
 
 num_articles = 20800
-hm_epochs = 100
+hm_epochs = 30
 n_classes = 2
 # batch_size = 128
 
 chunk_size = 300
-n_chunks = 50
+n_chunks = 100
 rnn_size = 256
+l_rate = .00005
 
 x = tf.placeholder('float', [None, n_chunks, chunk_size])
 y = tf.placeholder('float')
@@ -44,7 +45,7 @@ def train_neural_network(x):
     epoch_x, epoch_y = train[0], train[1]
     prediction = recurrent_neural_network(x)
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=prediction, labels=y))
-    optimizer = tf.train.AdamOptimizer().minimize(cost)
+    optimizer = tf.train.AdamOptimizer(learning_rate=l_rate).minimize(cost)
 
     with tf.Session() as sess:
 
