@@ -4,9 +4,11 @@ import numpy as np
 import gensim
 import re
 
+
 def process_train_data(train_path, n_articles, n_words, max_words=2000, min_words=50):
-    ''' method to read in the training data
-    and shape it into the correct dimensions '''
+    ''' Method to read in the training data and shape it into the correct dimensions.
+        Takes in file path, # articles, # words, and a range of article lengths
+        Returns two tuples (train_x, train_y), (test_x, test_y) '''
     word_embeddings = gensim.models.KeyedVectors.load_word2vec_format('./GoogleNews-vectors-negative300.bin', binary=True)
 
     train_data = []
@@ -22,7 +24,6 @@ def process_train_data(train_path, n_articles, n_words, max_words=2000, min_word
         else:
             break
 
-    #train_x = []
     train_x = np.zeros((n_articles-1, n_words*300))
     train_y = np.zeros((n_articles-1, 2))
     # print(train_x.shape)
@@ -31,22 +32,20 @@ def process_train_data(train_path, n_articles, n_words, max_words=2000, min_word
     removed = 0
 
     for i, data in enumerate(train_data[1:]):
-        # print("Converting article: ", data[1], "...")
         rmv_pnc = re.sub(r'[^\w\s]', '', data[3])
         words = rmv_pnc.split()
-        if len(words) > min_words and len(words) < max_words:
+
+        if min_words < len(words) < max_words:
             n_2 = 0
             word_matrix = []
             for word in words:
-                # print(word)
                 if n_2 < n_words:
                     if word in word_embeddings:
-                        # print(word, " was in the embedding")
                         embedding = word_embeddings[word]
                         word_matrix.extend(embedding)
                         n_2 += 1
 
-            if(len(word_matrix) < train_x.shape[1]):
+            if len(word_matrix) < train_x.shape[1]:
                 padding = np.zeros(train_x.shape[1]-len(word_matrix))
                 word_matrix.extend(padding)
 
@@ -55,34 +54,22 @@ def process_train_data(train_path, n_articles, n_words, max_words=2000, min_word
                 train_y[i] = [1, 0]
             else:
                 train_y[i] = [0, 1]
-            # print(len(word_matrix))
             train_x[i] = word_matrix
         else:
             removed += 1
 
-        # print("len(word_matrix):", len(word_matrix))
-        #
-        # print("words in article: ", len(data[3].split()))
-        # print("shape of word matrix: ", np.array(word_matrix).shape)
-
-    # testing size of training data
-    # for article in training:
-    #     print(article[0].shape, " ", article[1])
-    #     if article[0].shape[0]%300 is not 0:
-    #         print("bruh its rong")
-
-    # train_x, train_y = train_x[-removed:], train_y[-removed:]
     print("x shape: ", train_x.shape)
     print("y shape: ", train_y.shape)
 
     print("Articles removed because of length: ", removed)
 
+    # Returns two tuples (train_x, train_y), (test_x, test_y)
     return train_x, train_y
 
-# Returns two tuples (train_x, train_y), (test_x, test_y)
 
 
-#---------------------------------
+
+# ---------------------------------
 
 def get_original_test_data(path, percentage, n_articles):
 

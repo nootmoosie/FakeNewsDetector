@@ -6,6 +6,7 @@ import re
 import statistics
 from matplotlib import pyplot
 
+
 def get_stats(train_path, attribute='articles', n_rows=5000, extra_plot=None, chars=False, max_words=2000, min_words=50):
     ''' method to process the data and
     calculate all of the useful

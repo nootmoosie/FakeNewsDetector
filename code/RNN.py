@@ -21,6 +21,8 @@ x = tf.placeholder('float', [None, n_chunks, chunk_size])
 y = tf.placeholder('float')
 
 def recurrent_neural_network(x):
+    ''' Caclulates output of RNN cell '''
+
     layer = {'weights': tf.Variable(tf.random_normal([rnn_size, n_classes])),
              'biases': tf.Variable(tf.random_normal([n_classes]))}
 
@@ -37,9 +39,8 @@ def recurrent_neural_network(x):
 
 
 def train_neural_network(x):
+    ''' Loads data and trains the RNN '''
 
-    # train_data, test_data = process_csv_data('../data/train.csv', '../data/test.csv', 10, 5)
-    # epoch_x, epoch_y = train_data[0], train_data[1]
     epoch_x, epoch_y = process_train_data('../data/train.csv', num_articles, n_chunks)
     train, test = train_test_split(epoch_x, epoch_y, .8)
     epoch_x, epoch_y = train[0], train[1]
