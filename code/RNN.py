@@ -8,14 +8,14 @@ from process_data import process_train_data, train_test_split, get_original_test
 from make_plot import plot_acc
 
 num_articles = 20800
-hm_epochs = 1
+hm_epochs = 50
 n_classes = 2
 # batch_size = 128
 
 chunk_size = 300
 n_chunks = 50
 rnn_size = 256
-l_rate = .00005
+l_rate = .0001
 
 x = tf.placeholder('float', [None, n_chunks, chunk_size])
 y = tf.placeholder('float')
@@ -41,9 +41,10 @@ def recurrent_neural_network(x):
 def train_neural_network(x):
     ''' Loads data and trains the RNN '''
 
-    epoch_x, epoch_y = process_train_data('../data/train.csv', num_articles, n_chunks)
-    train, test = train_test_split(epoch_x, epoch_y, .8)
-    epoch_x, epoch_y = train[0], train[1]
+    #epoch_x, epoch_y = process_train_data('../data/train.csv', num_articles, n_chunks)
+    (train_x, train_y), (test_x, test_y) = process_train_data('../data/train.csv', num_articles, n_chunks, .8)
+    #train, test = train_test_split(epoch_x, epoch_y, .8)
+    epoch_x, epoch_y = train_x, train_y
     prediction = recurrent_neural_network(x)
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=prediction, labels=y))
     optimizer = tf.train.AdamOptimizer(learning_rate=l_rate).minimize(cost)
@@ -68,7 +69,7 @@ def train_neural_network(x):
             correct = tf.equal(tf.argmax(prediction, 1), tf.argmax(y, 1))
             accuracy = tf.reduce_mean(tf.cast(correct, 'float'))
             train_accuracies.append(accuracy.eval({x: epoch_x.reshape((-1, n_chunks, chunk_size)), y: epoch_y}))
-            test_x, test_y = test[0], test[1]
+            #test_x, test_y = test[0], test[1]
             test_accuracies.append(accuracy.eval({x: test_x.reshape((-1, n_chunks, chunk_size)), y: test_y}))
             #################################################
 
@@ -92,7 +93,7 @@ def train_neural_network(x):
         # print('Training Correct Article Indices: ',
         #       correct.eval({x: epoch_x.reshape((-1, n_chunks, chunk_size)), y: epoch_y}))
 
-        test_x, test_y = test[0], test[1]
+        #test_x, test_y = test[0], test[1]
         eval_acc = accuracy.eval({x: test_x.reshape((-1, n_chunks, chunk_size)), y: test_y})
         print('Test Accuracy:', eval_acc)
 

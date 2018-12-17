@@ -6,10 +6,28 @@ import re
 from scipy import stats
 
 
-def process_train_data(train_path, n_articles, n_words, max_words=2000, min_words=50):
+def process_train_data(train_path, n_articles, n_words, split_percentage, max_words=2000, min_words=50, split_shuffle=False):
     ''' Method to read in the training data and shape it into the correct dimensions.
         Takes in file path, # articles, # words, and a range of article lengths
         Returns two tuples (train_x, train_y), (test_x, test_y) '''
+
+
+    # if shuffle:
+    #     zipped = zip(x, y)
+    #     zipped = list(zipped)
+    #     np.random.shuffle(zipped)
+    #     x, y = zip(*zipped)
+    #     print(type(x))
+
+
+
+    # train_x = x[:split_idx]
+    # test_x = x[split_idx:]
+
+    # train_y = y[:split_idx]
+    # test_y = y[split_idx:]
+
+    # return (train_x, train_y), (test_x, test_y)
 
     # load in the pre trained word vectors
     word_embeddings = gensim.models.KeyedVectors.load_word2vec_format('./GoogleNews-vectors-negative300.bin', binary=True)
@@ -27,19 +45,28 @@ def process_train_data(train_path, n_articles, n_words, max_words=2000, min_word
         else:
             break
 
-    train_x = np.zeros((n_articles-1, n_words*300))
-    train_y = np.zeros((n_articles-1, 2))
+    split_idx = int(split_percentage*len(train_data))
+
+    train_x = np.zeros((split_idx, n_words*300))
+    train_y = np.zeros((split_idx, 2))
+    test_x = np.zeros((n_articles-split_idx, n_words*300))
+    test_y = np.zeros((n_articles-split_idx, 2))
     # print(train_x.shape)
     # print(train_y.shape)
 
+    if split_shuffle:
+        np.random.shuffle(train_data)
+
     removed = 0
     ignored = 0
+
+    train_set = True
 
     for i, data in enumerate(train_data[1:]):
         rmv_pnc = re.sub(r'[^\w\s]', '', data[3])
         words = rmv_pnc.split()
 
-        if min_words < len(words) < max_words:
+        if (min_words < len(words) < max_words) or not train_set:
             n_2 = 0
             word_matrix = []
             total_words = len(words)
@@ -52,7 +79,7 @@ def process_train_data(train_path, n_articles, n_words, max_words=2000, min_word
                         n_2 += 1
                         found_words += 1
 
-            if (found_words/total_words) > 0.05:
+            if not train_set or ((found_words/total_words) > 0.05):
                 if len(word_matrix) < train_x.shape[1]:
                     padding = np.zeros(train_x.shape[1]-len(word_matrix))
                     word_matrix.extend(padding)
@@ -60,23 +87,37 @@ def process_train_data(train_path, n_articles, n_words, max_words=2000, min_word
                 label = data[4]
 
                 if int(label) == 0:
-                    train_y[i] = [1, 0]
+                    if train_set:
+                        train_y[i] = [1, 0]
+                    else:
+                        test_y[i-split_idx] = [1, 0]
                 else:
-                    train_y[i] = [0, 1]
-                train_x[i] = word_matrix
+                    if train_set:
+                        train_y[i] = [0, 1]
+                    else:
+                        test_y[i-split_idx] = [0, 1]
+                if train_set:
+                    train_x[i] = word_matrix
+                else:
+                    test_x[i-split_idx] = word_matrix
             else:
                 ignored += 1
         else:
             removed += 1
 
-    print("x shape: ", train_x.shape)
-    print("y shape: ", train_y.shape)
+        if i == split_idx-1:
+            train_set = False
+
+    print("train x shape: ", train_x.shape)
+    print("train y shape: ", train_y.shape)
+    print("test x shape: ", test_x.shape)
+    print("test y shape: ", test_y.shape)
 
     print("Articles removed because of length: ", removed)
     print("Articles removed because of unseen words: ", ignored)
 
     # Returns two tuples (train_x, train_y), (test_x, test_y)
-    return train_x, train_y
+    return (train_x, train_y), (test_x, test_y)
 
 
 
