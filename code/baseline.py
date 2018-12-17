@@ -17,7 +17,7 @@ print("train label shape: ", epoch_y.shape)
 
 test_x, test_y = test[0], test[1]
 
-neural_net = MLPClassifier()
+neural_net = MLPClassifier(batch_size=300, max_iter=50)
 neural_net.fit(epoch_x, epoch_y)
 preds = neural_net.predict(test_x)
 

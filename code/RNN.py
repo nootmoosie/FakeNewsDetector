@@ -8,14 +8,14 @@ from process_data import process_train_data, train_test_split, get_original_test
 from make_plot import plot_acc
 
 num_articles = 20800
-hm_epochs = 1
+hm_epochs = 50
 n_classes = 2
 # batch_size = 128
 
 chunk_size = 300
 n_chunks = 50
 rnn_size = 256
-l_rate = .00005
+l_rate = .0001
 
 x = tf.placeholder('float', [None, n_chunks, chunk_size])
 y = tf.placeholder('float')
@@ -30,7 +30,13 @@ def recurrent_neural_network(x):
     x = tf.reshape(x, [-1, chunk_size])
     x = tf.split(x, n_chunks, 0)
 
+    # gru_cell = rnn.GRUCell(rnn_size)
     lstm_cell = rnn.BasicLSTMCell(rnn_size)
+    # lstm_cell = rnn.LSTMCell(rnn_size)
+    # gru_cell = tf.nn.rnn_cell.GRUCell(rnn_size)
+    # rnn_cell = tf.nn.rnn_cell.RNNCell(rnn_size)
+    # rnn_cell = rnn.RNNCell(rnn_size)
+
     outputs, states = rnn.static_rnn(lstm_cell, x, dtype=tf.float32)
 
     output = tf.matmul(outputs[-1], layer['weights']) + layer['biases']  # final output multiplied with weights + biases
@@ -59,7 +65,6 @@ def train_neural_network(x):
             epoch_loss = 0
             epoch_x = epoch_x.reshape((epoch_x.shape[0], n_chunks, chunk_size))
             pred, _, c = sess.run([prediction, optimizer, cost], feed_dict={x: epoch_x, y: epoch_y})
-            # predictions.append(pred)
             epoch_loss += c
 
             print('Epoch', epoch, 'completed out of', hm_epochs, 'loss:', epoch_loss)
@@ -72,19 +77,8 @@ def train_neural_network(x):
             test_accuracies.append(accuracy.eval({x: test_x.reshape((-1, n_chunks, chunk_size)), y: test_y}))
             #################################################
 
-
         correct = tf.equal(tf.argmax(prediction, 1), tf.argmax(y, 1))
         print('correct!!!!; ', correct.eval({x: epoch_x.reshape((-1, n_chunks, chunk_size)), y: epoch_y}))
-
-        # num_correct = 0
-        # print(epoch_y.shape)
-        # for i, p in enumerate(pred):
-        #     print("prediction: {}    true value: {}".format(p, epoch_y[i]))
-        #     if np.argmax(p) == np.argmax(epoch_y):
-        #         num_correct += 1
-        #
-        # accuracy = num_correct/len(pred)
-        # print("TEST ACCURACY: ", accuracy)
 
         accuracy = tf.reduce_mean(tf.cast(correct, 'float'))
         train_acc = accuracy.eval({x: epoch_x.reshape((-1, n_chunks, chunk_size)), y: epoch_y})
