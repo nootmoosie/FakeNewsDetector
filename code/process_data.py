@@ -59,6 +59,7 @@ def process_train_data(train_path, n_articles, n_words, split_percentage, max_wo
 
     removed = 0
     ignored = 0
+    #percents = []
 
     train_set = True
 
@@ -79,10 +80,14 @@ def process_train_data(train_path, n_articles, n_words, split_percentage, max_wo
                         n_2 += 1
                         found_words += 1
 
-            if not train_set or ((found_words/total_words) > 0.05):
+            words_used = min(total_words, n_words)
+
+            if not train_set or ((found_words/words_used) > 0.50):
+                # if train_set:
+                #     percents.append(found_words/(words_used+1))
                 if len(word_matrix) < train_x.shape[1]:
                     padding = np.zeros(train_x.shape[1]-len(word_matrix))
-                    word_matrix.extend(padding)
+                    word_matrix = np.append(padding, word_matrix)
 
                 label = data[4]
 
@@ -102,6 +107,8 @@ def process_train_data(train_path, n_articles, n_words, split_percentage, max_wo
                     test_x[i-split_idx] = word_matrix
             else:
                 ignored += 1
+                print("Percent words found: ", (found_words/words_used))
+                print(data)
         else:
             removed += 1
 
@@ -115,6 +122,14 @@ def process_train_data(train_path, n_articles, n_words, split_percentage, max_wo
 
     print("Articles removed because of length: ", removed)
     print("Articles removed because of unseen words: ", ignored)
+
+    # print("Stats of percent of words found")
+    # print("Mean: ", np.mean(percents))
+    # print("Median: ", np.median(percents))
+    # print("Mode: ", stats.mode(percents)[0])
+    # print("Minimum: ", min(percents))
+    # print("Maximum: ", max(percents))
+    # print("Standard Deviation: ", np.std(percents))
 
     # Returns two tuples (train_x, train_y), (test_x, test_y)
     return (train_x, train_y), (test_x, test_y)
