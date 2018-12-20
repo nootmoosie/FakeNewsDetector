@@ -79,10 +79,13 @@ def process_train_data(train_path, n_articles, n_words, split_percentage, max_wo
                         n_2 += 1
                         found_words += 1
 
-            if not train_set or ((found_words/total_words) > 0.05):
+            words_used = min(total_words, n_words)
+
+            if not train_set or ((found_words/words_used) > 0.5):
                 if len(word_matrix) < train_x.shape[1]:
                     padding = np.zeros(train_x.shape[1]-len(word_matrix))
-                    word_matrix.extend(padding)
+                    word_matrix = np.append(padding, word_matrix)
+                    # word_matrix.extend(padding)
 
                 label = data[4]
 
