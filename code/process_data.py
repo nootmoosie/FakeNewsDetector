@@ -88,6 +88,7 @@ def process_train_data(train_path, n_articles, n_words, split_percentage, max_wo
                 if len(word_matrix) < train_x.shape[1]:
                     padding = np.zeros(train_x.shape[1]-len(word_matrix))
                     word_matrix = np.append(padding, word_matrix)
+                    # word_matrix.extend(padding)
 
                 label = data[4]
 
