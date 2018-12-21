@@ -30,14 +30,10 @@ def recurrent_neural_network(x):
     x = tf.reshape(x, [-1, chunk_size])
     x = tf.split(x, n_chunks, 0)
 
-    # gru_cell = rnn.GRUCell(rnn_size)
     lstm_cell = rnn.BasicLSTMCell(rnn_size)
-    # lstm_cell = rnn.LSTMCell(rnn_size)
-    # gru_cell = tf.nn.rnn_cell.GRUCell(rnn_size)
-    # rnn_cell = tf.nn.rnn_cell.RNNCell(rnn_size)
-    # rnn_cell = rnn.RNNCell(rnn_size)
-
-    outputs, states = rnn.static_rnn(lstm_cell, x, dtype=tf.float32)
+    gru_cell = rnn.GRUCell(rnn_size)
+    rnn_cell = rnn.RNNCell()
+    outputs, states = rnn.static_rnn(gru_cell, x, dtype=tf.float32)
 
     output = tf.matmul(outputs[-1], layer['weights']) + layer['biases']  # final output multiplied with weights + biases
 
@@ -47,9 +43,10 @@ def recurrent_neural_network(x):
 def train_neural_network(x):
     ''' Loads data and trains the RNN '''
 
-    epoch_x, epoch_y = process_train_data('../data/train.csv', num_articles, n_chunks)
-    train, test = train_test_split(epoch_x, epoch_y, .8)
-    epoch_x, epoch_y = train[0], train[1]
+    #epoch_x, epoch_y = process_train_data('../data/train.csv', num_articles, n_chunks)
+    (train_x, train_y), (test_x, test_y) = process_train_data('../data/train.csv', num_articles, n_chunks, .8)
+    #train, test = train_test_split(epoch_x, epoch_y, .8)
+    epoch_x, epoch_y = train_x, train_y
     prediction = recurrent_neural_network(x)
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=prediction, labels=y))
     optimizer = tf.train.AdamOptimizer(learning_rate=l_rate).minimize(cost)
@@ -73,7 +70,7 @@ def train_neural_network(x):
             correct = tf.equal(tf.argmax(prediction, 1), tf.argmax(y, 1))
             accuracy = tf.reduce_mean(tf.cast(correct, 'float'))
             train_accuracies.append(accuracy.eval({x: epoch_x.reshape((-1, n_chunks, chunk_size)), y: epoch_y}))
-            test_x, test_y = test[0], test[1]
+            #test_x, test_y = test[0], test[1]
             test_accuracies.append(accuracy.eval({x: test_x.reshape((-1, n_chunks, chunk_size)), y: test_y}))
             #################################################
 
@@ -86,7 +83,7 @@ def train_neural_network(x):
         # print('Training Correct Article Indices: ',
         #       correct.eval({x: epoch_x.reshape((-1, n_chunks, chunk_size)), y: epoch_y}))
 
-        test_x, test_y = test[0], test[1]
+        #test_x, test_y = test[0], test[1]
         eval_acc = accuracy.eval({x: test_x.reshape((-1, n_chunks, chunk_size)), y: test_y})
         print('Test Accuracy:', eval_acc)
 
